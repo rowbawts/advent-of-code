@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"strconv"
+	"strings"
+	"unicode"
 )
 
 func main() {
@@ -60,6 +63,45 @@ func main() {
 		body = append(body, buffer[:n]...)
 	}
 
-	// Print the response body
-	fmt.Println("Response:", string(body))
+	// Split the response body into lines
+	lines := strings.Split(string(body), "\n")
+
+	var total = 0
+
+	// Process each line
+	for _, line := range lines {
+		if len(line) > 0 {
+			// Find the last digit in the line
+			var lastDigit byte
+			for i := len(line) - 1; i >= 0; i-- {
+				if unicode.IsDigit(rune(line[i])) {
+					lastDigit = line[i]
+					break
+				}
+			}
+
+			// Extract the first digit of the line
+			var firstDigit byte
+			for _, char := range line {
+				if unicode.IsDigit(char) {
+					firstDigit = byte(char)
+					break
+				}
+			}
+
+			// Combine the first and last digits into a single string
+			combinedDigits := string([]byte{firstDigit, lastDigit})
+
+			// Convert the combined digits to an int
+			combinedInt, err := strconv.Atoi(combinedDigits)
+			if err != nil {
+				fmt.Println("Error converting to int:", err)
+				continue
+			}
+
+			total += combinedInt
+		}
+	}
+
+	fmt.Println(total)
 }
